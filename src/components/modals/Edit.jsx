@@ -26,7 +26,7 @@ export default function Edit({ initial, onSave, onClose }){
         </label>
         <label className="mb-4 block text-sm">Spesa per pacchetto da 20
           <div className="mt-1 flex items-center gap-2">
-            <span className="rounded-xl bg-black/5 px-2 py-2 text-sm">?</span>
+            <span className="rounded-xl bg-black/5 px-2 py-2 text-sm">€</span>
             <input type="number" step="0.01" inputMode="decimal" value={p} onChange={e=>setP(e.target.value)} placeholder="Es. 6.50" className="w-full rounded-xl border border-black/10 p-2"/>
           </div>
         </label>

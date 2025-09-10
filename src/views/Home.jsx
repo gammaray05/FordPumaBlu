@@ -53,7 +53,7 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
       )}
       <div className="card p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3"><span className="text-xl">🚭</span><div><p className="text-sm text-[#111]/90">Oggi</p><h2 className="text-2xl font-extrabold text-[#111]">{smoked}/{target} <span className="text-sm font-normal">sigarette</span></h2></div></div>
+          <div className="flex items-center gap-3"><span className="text-xl">🚬</span><div><p className="text-sm text-[#111]/90">Oggi</p><h2 className="text-2xl font-extrabold text-[#111]">{smoked}/{target} <span className="text-sm font-normal">sigarette</span></h2></div></div>
           <div className="text-right"><p className="text-sm text-[#111]/90">Punti a fine giornata</p><h2 className="text-2xl font-extrabold text-[#111]">{points}</h2></div>
         </div>
         <div className="mt-3 h-3 w-full rounded-full" style={{background:'rgba(0,0,0,.08)'}}>

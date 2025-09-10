@@ -42,7 +42,7 @@ export default function Board({data,levelFrom,prog,lvlStep,meName}){
             </div>
             <div>
               <div className="text-sm font-semibold text-[#111]">{i+1}. {u.name}</div>
-              <div className="text-[11px] text-[#111]/80">Livello {p.lvl} • manca <b>{p.need}</b> pt</div>
+              <div className="text-[11px] text-[#111]/80">Livello {p.lvl} • mancano <b>{p.need}</b> pt</div>
             </div>
           </div>
           <div className="text-right text-xs">

@@ -16,7 +16,7 @@ export default function Profile({name,baseline,pack,streak,daysSF,mode,setMode,t
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Field k="Nome" v={name||'?'} />
-          <Field k="Sig./die (baseline)" v={baseline} />
+          <Field k="Media sigarette al giorno da fumatore" v={baseline} />
           <Field k="Costo pacchetto" v={`€${pack.toFixed(2)}`} />
           <Field k="Giorni smoke-free" v={daysSF} />
         </div>

@@ -10,7 +10,8 @@ create table if not exists public.profiles (
   baseline integer,
   pack numeric(10,2),
   mode text,
-  target_today integer
+  target_today integer,
+  badges text[]
 );
 
 -- Activities feed (global)

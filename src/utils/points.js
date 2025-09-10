@@ -33,7 +33,7 @@ export const computePoints = (baseline, target, smoked) => {
   return Math.max(0, Math.min(SCORE_CFG.scoreCap, S))
 }
 
-export const lvlStep = (n) => Math.round(250 * Math.pow(1.25, Math.max(0, n - 1)))
+export const lvlStep = (n) => Math.round(220 * Math.pow(1.35, Math.max(0, n - 1)));
 export const levelInfo = (p) => {
   let lvl = 1, start = 0, step = lvlStep(1)
   for (let i = 0; i < 100; i++) {

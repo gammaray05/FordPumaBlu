@@ -1,7 +1,7 @@
 import Field from '../components/ui/Field.jsx'
 import { useApp } from '../state/AppContext.jsx'
 
-export default function Profile({name,baseline,pack,streak,daysSF,mode,setMode,target,setTarget,setDaysSF,onEdit}){
+export default function Profile({name,baseline,pack,streak,daysSF,mode,setMode,target,setTarget,setDaysSF,onEdit, badges, earnedBadgeIds}){
   const app = useApp?.()
   const _mode = app?.mode ?? mode
   const _setMode = app?.setMode ?? setMode
@@ -33,6 +33,22 @@ export default function Profile({name,baseline,pack,streak,daysSF,mode,setMode,t
           <button onClick={()=>_setTarget(Math.max(0,_target-1))} className="btn px-3 py-2 text-white" style={{background:'var(--g2)'}}>-</button>
           <div className="px-4 py-2 text-lg font-bold rounded-md" style={{background:'#fff'}}>{_target}</div>
           <button onClick={()=>_setTarget(_target+1)} className="btn px-3 py-2 text-white" style={{background:'var(--g1)'}}>+</button>
+        </div>
+      </div>
+
+      <div className="card p-4">
+        <h3 className="text-lg font-bold text-[#111] mb-2">I tuoi Badge</h3>
+        <div className="grid grid-cols-3 gap-4">
+          {(badges || []).map(badge => {
+            const isEarned = (earnedBadgeIds || []).includes(badge.id);
+            return (
+              <div key={badge.id} className={`flex flex-col items-center p-2 rounded-lg text-center transition-all ${isEarned ? 'bg-yellow-100' : 'bg-gray-200'}`}>
+                <span className={`text-4xl transition-all ${isEarned ? '' : 'filter grayscale'}`}>{badge.icon}</span>
+                <span className={`mt-2 text-sm font-bold ${isEarned ? 'text-gray-800' : 'text-gray-500'}`}>{badge.name}</span>
+                <span className="text-xs text-gray-600">{badge.description}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
+import { badges } from './lib/badges.js';
 
 // Ford Puma Blu • Compact Mock UI (skeuo + bright palette)
 export default function FordPumaBlu(){
@@ -30,6 +31,7 @@ export default function FordPumaBlu(){
   const [activeId,setActiveId]=useState(null);
   const [myPoints,setMyPoints]=useState(0);
   const [recentActIds,setRecentActIds]=useState([]);
+  const [earnedBadges, setEarnedBadges] = useState([]);
   const logLockRef=useRef(null);
   const undoLockRef=useRef(false);
   const lastActIdRef=useRef(null);
@@ -66,6 +68,7 @@ export default function FordPumaBlu(){
     setMode(m);
     setTargetToday(m==='zero'?0:(p.targetToday ?? p.baseline ?? 0));
     setActiveId(p.id||null);
+    setEarnedBadges(p.badges || []);
   };
   const loginAs=(p)=>{
     try{localStorage.setItem('fbl_active',p.id||p.name)}catch{}
@@ -85,9 +88,9 @@ export default function FordPumaBlu(){
       try{
         const sb = await getSB();
         if (sb) {
-          const { data, error } = await sb.from('profiles').select('id, name, baseline, pack, mode, target_today').order('name');
+          const { data, error } = await sb.from('profiles').select('id, name, baseline, pack, mode, target_today, badges').order('name');
           if (error) throw error;
-          const list = (data||[]).map(r=>({ id:r.id, name:r.name, baseline:r.baseline, pack:r.pack, mode:r.mode, targetToday:r.target_today }))
+          const list = (data||[]).map(r=>({ id:r.id, name:r.name, baseline:r.baseline, pack:r.pack, mode:r.mode, targetToday:r.target_today, badges: r.badges }))
           setProfiles(list);
         } else {
           const list=JSON.parse(localStorage.getItem('fbl_profiles')||'[]');
@@ -155,7 +158,7 @@ export default function FordPumaBlu(){
       }catch(e){ /* ignore */ }
     })();
   },[activeId, debugEpoch]);
-  
+
   // export/import per migrare i profili tra browser
   const exportProfiles=async ()=>{
     const payload={profiles, active:lastActive};
@@ -245,6 +248,48 @@ export default function FordPumaBlu(){
   const savingTotal=totalsTracked.saving;
   const avoidedTotal=totalsTracked.avoided;
   const showConfetti=smokedToday<=targetToday;
+
+  useEffect(() => {
+    if (activeId) {
+      const stats = {
+        streakDays,
+        avoidedTotal,
+        level: levelFrom(myPoints),
+      };
+
+      const currentBadges = badges.filter(badge => badge.checker(stats));
+      const currentBadgeIds = currentBadges.map(b => b.id);
+      
+      const userBadges = earnedBadges || [];
+      const newlyEarned = currentBadgeIds.filter(id => !userBadges.includes(id));
+
+      if (newlyEarned.length > 0) {
+        const updatedBadges = [...userBadges, ...newlyEarned];
+        setEarnedBadges(updatedBadges);
+        (async () => {
+          try {
+            const sb = await getSB();
+            if (sb) {
+              await sb.from('profiles').update({ badges: updatedBadges }).eq('id', activeId);
+              for (const badgeId of newlyEarned) {
+                const badge = badges.find(b => b.id === badgeId);
+                if (badge) {
+                  await sb.from('activities').insert({
+                    icon: badge.icon,
+                    text: `${name} ha guadagnato il badge "${badge.name}"!`,
+                    profile_id: activeId,
+                  });
+                }
+              }
+            }
+          } catch (e) {
+            console.error('Error updating badges or activity feed', e);
+          }
+        })();
+      }
+    }
+  }, [streakDays, avoidedTotal, myPoints, activeId, name]);
+
   // leaderboard from daily_stats (sum points total + last 7 days)
   useEffect(()=>{
     (async ()=>{
@@ -527,7 +572,7 @@ const shareWA = () => {
       {tab==='registro' && (<Registro history={history} historyAgg={historyWithToday} todaySmoked={smokedToday} pack={pack??0} baseline={baseline??20} onboardDate={onboardDate}/>) }
       {tab==='classifica' && (<Board data={leaderboard} levelFrom={levelFrom} prog={prog} lvlStep={lvlStep} meName={name||'Tu'} />) }
       {tab==='salute' && (<Health daysSF={streakDays}/>)}
-      {tab==='profilo' && (<Profile name={name} baseline={baseline??0} pack={pack??0} streak={streakDays} daysSF={daysSF} mode={mode} setMode={(m)=>{setMode(m); const newT = (m==='zero')?0:(baseline??targetToday); setTargetToday(newT); setDailyTargets(t=>({ ...t, [todayStr()]: newT })); (async()=>{ try{ const sb=await getSB(); const d=todayStr(); const b=baseline??20; const base=computePoints(b,newT,smokedToday); const bonus=(rewardsByDate[d]||0); const sbn=(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0; if(sb && activeId){ await sb.from('profiles').update({ mode:m, target_today:newT }).eq('id', activeId); await sb.from('daily_stats').upsert({ profile_id: activeId, date: d, smoked: smokedToday, target: newT, points: base+bonus+sbn }); } else if(activeId){ upsertDailyStatLocal(activeId, { date:d, smoked: smokedToday, target: newT, points: base+sbn }); } }catch{} })(); }} target={targetToday} setTarget={(n)=>{const v=Math.max(0,n); const m2 = (v===0)?'zero':'reduction'; setTargetToday(v); setMode(m2); setDailyTargets(t=>({ ...t, [todayStr()]: v })); (async()=>{ try{ const sb=await getSB(); const d=todayStr(); const b=baseline??20; const base=computePoints(b,v,smokedToday); const bonus=(rewardsByDate[d]||0); const sbn=(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0; if(sb && activeId){ await sb.from('profiles').update({ target_today:v, mode:m2 }).eq('id', activeId); await sb.from('daily_stats').upsert({ profile_id: activeId, date: d, smoked: smokedToday, target: v, points: base+bonus+sbn }); } else if(activeId){ upsertDailyStatLocal(activeId, { date:d, smoked: smokedToday, target: v, points: base+sbn }); } }catch{} })(); }} setDaysSF={setDaysSF} onEdit={()=>setShowEdit(true)}/>)}
+      {tab==='profilo' && (<Profile name={name} baseline={baseline??0} pack={pack??0} streak={streakDays} daysSF={daysSF} mode={mode} setMode={(m)=>{setMode(m); const newT = (m==='zero')?0:(baseline??targetToday); setTargetToday(newT); setDailyTargets(t=>({ ...t, [todayStr()]: newT })); (async()=>{ try{ const sb=await getSB(); const d=todayStr(); const b=baseline??20; const base=computePoints(b,newT,smokedToday); const bonus=(rewardsByDate[d]||0); const sbn=(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0; if(sb && activeId){ await sb.from('profiles').update({ mode:m, target_today:newT }).eq('id', activeId); await sb.from('daily_stats').upsert({ profile_id: activeId, date: d, smoked: smokedToday, target: newT, points: base+bonus+sbn }); } else if(activeId){ upsertDailyStatLocal(activeId, { date:d, smoked: smokedToday, target: newT, points: base+sbn }); } }catch{} })(); }} target={targetToday} setTarget={(n)=>{const v=Math.max(0,n); const m2 = (v===0)?'zero':'reduction'; setTargetToday(v); setMode(m2); setDailyTargets(t=>({ ...t, [todayStr()]: v })); (async()=>{ try{ const sb=await getSB(); const d=todayStr(); const b=baseline??20; const base=computePoints(b,v,smokedToday); const bonus=(rewardsByDate[d]||0); const sbn=(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0; if(sb && activeId){ await sb.from('profiles').update({ target_today:v, mode:m2 }).eq('id', activeId); await sb.from('daily_stats').upsert({ profile_id: activeId, date: d, smoked: smokedToday, target: v, points: base+bonus+sbn }); } else if(activeId){ upsertDailyStatLocal(activeId, { date:d, smoked: smokedToday, target: v, points: base+sbn }); } }catch{} })(); }} setDaysSF={setDaysSF} onEdit={()=>setShowEdit(true)} badges={badges} earnedBadgeIds={earnedBadges} />)}
     </div>
     <Tabs tab={tab} setTab={setTab}/>
   </div></AppProvider>);

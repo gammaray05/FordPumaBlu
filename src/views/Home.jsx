@@ -51,11 +51,11 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
             {(smoked>0 || !!zeroLocked) ? '🚫 Oggi non ho fumato' : 'Oggi non ho fumato'}
           </button>
           {(smoked === 0 && !zeroLocked) && (
-            <p className="text-xs text-gray-600 mt-2">Premi per certificare la giornata a zero e ottenere il punteggio pieno e i bonus.</p>
+            <p className="text-xs text-gray-600 mt-2">Per certificare la giornata smoke-free devi premere qui, altrimenti il giorno viene ignorato.</p>
           )}
         </div>
       </div>
-      <div className="mt-2 text-xs text-[#111]/90">🔥 Streak di 0 sigarette: <span className="font-semibold">{sDays}</span> giorni {streakBonusToday? (<span className="ml-2 chip rounded-md px-2 py-0.5" style={{background:'#fff'}}>+{streakBonusToday} pt</span>) : null}</div>
+      <div className="mt-2 text-xs text-[#111]/90">🔥 Streak di giorni a 0 sigarette: <span className="font-semibold">{sDays}</span> giorni {streakBonusToday? (<span className="ml-2 chip rounded-md px-2 py-0.5" style={{background:'#fff'}}>+{streakBonusToday} pt</span>) : null}</div>
       <div className="card p-4">
         <div className="grid grid-cols-2 gap-3">
           <Metric title="Evitate oggi" icon="✅" val={avoidedToday}/>
@@ -79,7 +79,7 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
         </div>
       </div>
       <div className="card p-4">
-        <div className="mb-2 flex items-center justify-between"><h3 className="text-lg font-bold text-[#111]">Classifica (top 3)</h3><a href="#" onClick={(e)=>{e.preventDefault(); (goBoard ? goBoard() : app?.setTab?.('classifica'))}} className="text-xs font-semibold underline">Vedi tutto</a></div>
+        <div className="mb-2 flex items-center justify-between"><h3 className="text-lg font-bold text-[#111]">Classifica (top 3 settimanale)</h3><a href="#" onClick={(e)=>{e.preventDefault(); (goBoard ? goBoard() : app?.setTab?.('classifica'))}} className="text-xs font-semibold underline">Vedi tutto</a></div>
         <div className="space-y-2">{(() => {
             const topScore = lb.length > 0 ? lb[0].weekly : 1;
             return lb.slice(0,3).map((u,i)=>(

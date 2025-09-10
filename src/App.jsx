@@ -140,10 +140,12 @@ export default function FordPumaBlu(){
         else { setSmokedToday(0); }
         // compute zero-only streak across tracked days; do not count untracked days
         const byDate=new Map((data||[]).map(r=>[r.date,r]));
-        setTodayTracked(byDate.has(today));
-        try{ const lk = localStorage.getItem('fbl_zero_lock_'+(activeId||'local')+'_'+today); setZeroLocked(lk==='1'); }catch{}
+        const todayKey = todayStr();
+        setTodayTracked(byDate.has(todayKey));
+        try{ const lk = localStorage.getItem('fbl_zero_lock_'+(activeId||'local')+'_'+todayKey); setZeroLocked(lk==='1'); }catch{}
         let streak=0;
-        for(let i=0;i<60;i++){
+        const startDayOffset = byDate.has(todayKey) ? 0 : 1;
+        for(let i=startDayOffset;i<60;i++){
           const dKey=toISO(addDays(nowWithOffset(),-i));
           const row=byDate.get(dKey);
           if(!row) break; // stop if day not tracked
@@ -250,8 +252,13 @@ export default function FordPumaBlu(){
         const sb = await getSB();
         if(!sb || !profiles.length){ setLeaderboard([]); return; }
         const today = nowWithOffset();
+        const dayOfWeek = today.getDay();
+        const daysToSubtract = (dayOfWeek === 0) ? 6 : (dayOfWeek - 1);
+        const lastMondayDate = new Date(today);
+        lastMondayDate.setDate(today.getDate() - daysToSubtract);
+
         const start365 = toISO(addDays(today, -365));
-        const start7 = toISO(addDays(today, -6));
+        const start7 = toISO(lastMondayDate);
         const { data } = await sb
           .from('daily_stats')
           .select('profile_id, date, points')
@@ -264,6 +271,7 @@ export default function FordPumaBlu(){
           byId.set(r.profile_id, cur);
         });
         const rows = profiles.map(p=>({ name:p.name, points:(byId.get(p.id)?.total||0), weekly:(byId.get(p.id)?.weekly||0) }));
+        rows.sort((a, b) => (b.weekly||0) - (a.weekly||0));
         setLeaderboard(rows);
       }catch{ setLeaderboard([]); }
     })();
@@ -277,6 +285,24 @@ export default function FordPumaBlu(){
     const d = todayStr();
     try { localStorage.removeItem('fbl_zero_lock_'+(activeId||'local')+'_'+d); } catch {}
     setZeroLocked(false);
+
+    (async ()=>{
+      try {
+        const sb = await getSB();
+        if (sb && activeId) {
+          await sb.from('daily_stats').delete().match({ profile_id: activeId, date: d });
+        } else if (activeId) {
+          const { deleteDailyStatLocal } = await import('./lib/storage.js');
+          deleteDailyStatLocal(activeId, d);
+        }
+        // Reset local state and force a re-fetch of stats
+        setTodayTracked(false);
+        setSmokedToday(0);
+        setDebugEpoch(x => x + 1);
+      } catch (e) {
+        console.error('Error unlocking zero today', e);
+      }
+    })();
   };
   const certifyZeroToday = () => {
     if ((smokedRef.current||0) > 0) { alert('Non puoi certificare 0: oggi hai già registrato sigarette.'); return; }
@@ -493,14 +519,14 @@ const shareWA = () => {
       try{ localStorage.setItem('fbl_ch_'+(activeId||'local'), JSON.stringify(chObj)); }catch{}
       setShowCh(false)
     }} onClose={()=>setShowCh(false)}/>) }
-    {showEdit && (<Edit initial={{name,baseline:baseline??0,pack:pack??0}} onSave={(v)=>{setName(v.name);setBaseline(v.baseline);setPack(v.pack); if(mode==='reduction') setTargetToday(v.baseline); setShowEdit(false)}} onClose={()=>setShowEdit(false)}/>) }
+    {showEdit && (<Edit initial={{name,baseline:baseline??0,pack:pack??0}} onSave={async (v)=>{      setName(v.name);      setBaseline(v.baseline);      setPack(v.pack);      if(mode==='reduction') setTargetToday(v.baseline);      setShowEdit(false);      try {        const sb = await getSB();        if (sb && activeId) {          const { error } = await sb.from('profiles').update({            name: v.name,            baseline: v.baseline,            pack: v.pack,            target_today: (mode==='reduction' ? v.baseline : targetToday)          }).eq('id', activeId);          if (error) throw error;        }      } catch (e) { console.error('save profile err', e); }    }} onClose={()=>setShowEdit(false)}/>) }
 
     <div className="mx-auto max-w-md px-4 pt-6 pb-28">
       <Header name={name} />
       {tab==='home' && (<Home target={targetToday} smoked={smokedToday} points={pointsToday} log={logRemote} undo={undoRemote} certifyZero={certifyZeroToday} unlockZero={unlockZeroToday} zeroLocked={zeroLocked} showUndo={showUndo} undoCount={undoCount} ch={computeChallengeState(challenge, { baseline: baseline??20, getSmoked:(k)=> (k===todayStr()?smokedToday: (history.find(h=>h.date===k)?.smoked||0)), getTarget:(k)=> (k===todayStr()?targetToday: (dailyTargets[k]??(baseline??20))) })} shareWA={shareWA} lb={leaderboard} acts={acts} avoidedToday={avoidedToday} avoidedTotal={avoidedTotal} savingTotal={savingTotal} onChangeCh={()=>setShowCh(true)} streakDays={streakDays} streakBonusToday={(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0} levelFromXp={(p)=>levelFrom(p)} levelProg={(p)=>levelInfo(p)} goBoard={()=>setTab('classifica')} debugShiftDay={debugShiftDay} debugResetDay={debugResetDay} simDate={todayStr()} tick={timeTick} myPoints={myPoints} />)}
       {tab==='registro' && (<Registro history={history} historyAgg={historyWithToday} todaySmoked={smokedToday} pack={pack??0} baseline={baseline??20} onboardDate={onboardDate}/>) }
       {tab==='classifica' && (<Board data={leaderboard} levelFrom={levelFrom} prog={prog} lvlStep={lvlStep} meName={name||'Tu'} />) }
-      {tab==='salute' && (<Health daysSF={daysSF}/>)}
+      {tab==='salute' && (<Health daysSF={streakDays}/>)}
       {tab==='profilo' && (<Profile name={name} baseline={baseline??0} pack={pack??0} streak={streakDays} daysSF={daysSF} mode={mode} setMode={(m)=>{setMode(m); const newT = (m==='zero')?0:(baseline??targetToday); setTargetToday(newT); setDailyTargets(t=>({ ...t, [todayStr()]: newT })); (async()=>{ try{ const sb=await getSB(); const d=todayStr(); const b=baseline??20; const base=computePoints(b,newT,smokedToday); const bonus=(rewardsByDate[d]||0); const sbn=(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0; if(sb && activeId){ await sb.from('profiles').update({ mode:m, target_today:newT }).eq('id', activeId); await sb.from('daily_stats').upsert({ profile_id: activeId, date: d, smoked: smokedToday, target: newT, points: base+bonus+sbn }); } else if(activeId){ upsertDailyStatLocal(activeId, { date:d, smoked: smokedToday, target: newT, points: base+sbn }); } }catch{} })(); }} target={targetToday} setTarget={(n)=>{const v=Math.max(0,n); const m2 = (v===0)?'zero':'reduction'; setTargetToday(v); setMode(m2); setDailyTargets(t=>({ ...t, [todayStr()]: v })); (async()=>{ try{ const sb=await getSB(); const d=todayStr(); const b=baseline??20; const base=computePoints(b,v,smokedToday); const bonus=(rewardsByDate[d]||0); const sbn=(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0; if(sb && activeId){ await sb.from('profiles').update({ target_today:v, mode:m2 }).eq('id', activeId); await sb.from('daily_stats').upsert({ profile_id: activeId, date: d, smoked: smokedToday, target: v, points: base+bonus+sbn }); } else if(activeId){ upsertDailyStatLocal(activeId, { date:d, smoked: smokedToday, target: v, points: base+sbn }); } }catch{} })(); }} setDaysSF={setDaysSF} onEdit={()=>setShowEdit(true)}/>)}
     </div>
     <Tabs tab={tab} setTab={setTab}/>

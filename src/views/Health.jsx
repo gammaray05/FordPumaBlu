@@ -14,6 +14,9 @@ export default function Health({daysSF}){
   const perc=(d)=>d===0?100:Math.max(0,Math.min(100,Math.round((daysSF/d)*100)))
   return (
     <div className="space-y-3">
+      <div className="card p-4 text-sm text-center text-gray-700">
+        <p>Nota: i progressi di salute sono basati sui giorni consecutivi senza fumare. Anche una sola sigaretta azzera i progressi.</p>
+      </div>
       {ms.map((m,i)=>{ const p=perc(m.d); return (
         <div key={i} className="card p-4">
           <div className="mb-2 flex items-center justify-between">

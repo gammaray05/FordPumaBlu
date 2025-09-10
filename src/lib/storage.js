@@ -27,3 +27,8 @@ export function upsertDailyStatLocal(profileId, { date, smoked, target, points }
   writeMap(profileId, m)
 }
 
+export function deleteDailyStatLocal(profileId, date) {
+  const m = readMap(profileId);
+  delete m[date];
+  writeMap(profileId, m);
+}

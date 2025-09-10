@@ -2,6 +2,8 @@ import Initial from '../components/ui/Initial.jsx'
 import Metric from '../components/ui/Metric.jsx'
 import { timeAgo } from '../utils/dates.js'
 import { useApp } from '../state/AppContext.jsx'
+import LevelProgress from '../components/ui/LevelProgress.jsx';
+import LeaderboardRow from '../components/ui/LeaderboardRow.jsx';
 
 export default function Home({target,smoked,points,log,undo,certifyZero,unlockZero,zeroLocked,showUndo,undoCount,ch,shareWA,lb,acts,avoidedToday,avoidedTotal,savingTotal,onChangeCh,streakDays,streakBonusToday,levelFromXp,levelProg,goBoard,debugShiftDay,debugResetDay,simDate,tick,myPoints}){
   const app = useApp?.()
@@ -12,30 +14,15 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
   return (
     <div className="space-y-4">
       <div className="card p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative h-16 w-16">
-              <div className="absolute inset-0 rounded-full" style={{background:`conic-gradient(#00B7FF ${pct}%, #E5E7EB ${pct}%)`}}/>
-              <div className="absolute inset-1.5 rounded-full bg-white shadow-inner"/>
-              <div className="absolute inset-0 grid place-items-center text-[14px] font-extrabold text-[#111]">Lv {p.lvl}</div>
-            </div>
-            <div>
-              <div className="text-xs text-[#111]/80">Progresso livello ✨</div>
-              <div className="text-sm text-[#111]/85">mancano <span className="font-semibold">{p.need}</span> pt</div>
-            </div>
-          </div>
-          <div className="text-right">
-            <span className="chip rounded-md px-2 py-1 text-xs font-bold" style={{background:'#fff'}}>{myPoints} pt tot</span>
-          </div>
-        </div>
-        <div className="mt-3">
-          <div className="flex items-center justify-between text-[11px] text-[#111]/70"><span>Lv {p.lvl}</span><span>Lv {p.lvl+1}</span></div>
-          <div className="relative mt-1 h-3 w-full overflow-hidden rounded-full" style={{background:'linear-gradient(90deg, #EEF2FF, #F8FAFC)'}}>
-            <div className="h-full rounded-full" style={{width:`${pct}%`,background:'linear-gradient(90deg, #00B7FF, #7B42FF)'}}/>
-            <div className="pointer-events-none absolute inset-0 rounded-full" style={{background:'linear-gradient(90deg, rgba(255,255,255,.28), transparent 35%)'}}/>
-          </div>
-          <div className="mt-1 text-[11px] text-[#111]/70">{p.have} / {Math.max(1, (p.end-p.start)||1)} pt nel livello</div>
-        </div>
+        <LevelProgress
+          level={p.lvl}
+          xp={myPoints}
+          progress={p.pct}
+          needed={p.need}
+          have={p.have}
+          start={p.start}
+          end={p.end}
+        />
       </div>
       <button disabled={!!zeroLocked} onClick={(e)=>{e.preventDefault(); e.stopPropagation(); log();}} className="btn w-full py-4 text-lg font-bold text-white disabled:opacity-60 disabled:cursor-not-allowed" style={{background:'var(--g2)'}}>{zeroLocked?'🚫 + Sigaretta':'+ Sigaretta'}</button>
       {zeroLocked && (
@@ -59,10 +46,13 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
         <div className="mt-3 h-3 w-full rounded-full" style={{background:'rgba(0,0,0,.08)'}}>
           <div className="h-full rounded-full" style={{width:`${Math.min(100,Math.round((smoked/Math.max(1,target))*100))}%`,background:under?'var(--g2)':'var(--g1)'}}/>
         </div>
-        <div className="mt-4 flex justify-center">
+        <div className="mt-4 text-center">
           <button disabled={smoked>0 || !!zeroLocked} onClick={(e)=>{e.preventDefault(); e.stopPropagation(); certifyZero();}} className="btn px-5 py-3 text-base font-extrabold text-white disabled:opacity-60 disabled:cursor-not-allowed" style={{background:'var(--t)'}}>
             {(smoked>0 || !!zeroLocked) ? '🚫 Oggi non ho fumato' : 'Oggi non ho fumato'}
           </button>
+          {(smoked === 0 && !zeroLocked) && (
+            <p className="text-xs text-gray-600 mt-2">Premi per certificare la giornata a zero e ottenere il punteggio pieno e i bonus.</p>
+          )}
         </div>
       </div>
       <div className="mt-2 text-xs text-[#111]/90">🔥 Streak di 0 sigarette: <span className="font-semibold">{sDays}</span> giorni {streakBonusToday? (<span className="ml-2 chip rounded-md px-2 py-0.5" style={{background:'#fff'}}>+{streakBonusToday} pt</span>) : null}</div>
@@ -90,11 +80,12 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
       </div>
       <div className="card p-4">
         <div className="mb-2 flex items-center justify-between"><h3 className="text-lg font-bold text-[#111]">Classifica (top 3)</h3><a href="#" onClick={(e)=>{e.preventDefault(); (goBoard ? goBoard() : app?.setTab?.('classifica'))}} className="text-xs font-semibold underline">Vedi tutto</a></div>
-        <div className="space-y-2">{lb.slice(0,3).map((u,i)=>{const lvl=levelFromXp(u.points);return(
-          <div key={u.name} className="flex items-center justify-between rounded-xl bg-white/95 p-2 shadow">
-            <div className="flex items-center gap-2"><Initial s={u.name}/><div className="text-sm font-medium text-[#111]">{i+1}. {u.name} <span className="text-xs text-[#111]/85">Livello {lvl}</span></div></div>
-            <div className="text-right text-xs"><div className="font-bold text-[#111]">{u.weekly} pt</div></div>
-          </div>)})}
+        <div className="space-y-2">{(() => {
+            const topScore = lb.length > 0 ? lb[0].weekly : 1;
+            return lb.slice(0,3).map((u,i)=>(
+              <LeaderboardRow key={u.name} rank={i+1} user={u} scope="weekly" topScore={topScore} />
+            ));
+          })()}
         </div>
       </div>
       <div className="card p-4"><h3 className="text-lg font-bold text-[#111] mb-2">Attività del gruppo</h3><ul className="space-y-2">{(acts||[]).slice(0,5).map((a,i)=> (
@@ -133,6 +124,9 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
           <button onClick={onChangeCh} className="btn mt-3 w-full py-2 text-sm font-bold text-white" style={{background:'var(--g2)'}}>Scegli una sfida</button>
         </div>
       )}
+      <div className="text-center text-xs text-gray-500 mt-4">
+        <p>Nota: la giornata termina e inizia alle 5:00 del mattino.</p>
+      </div>
     </div>
   )
 }

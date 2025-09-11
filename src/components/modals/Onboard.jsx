@@ -24,7 +24,7 @@ export default function Onboard({ onDone, onBack }){
         <label className="mb-3 block text-sm">Media di sigarette fumate al giorno
           <input type="number" inputMode="numeric" value={c} onChange={e=>setC(e.target.value)} placeholder="Es. 12" className="mt-1 w-full rounded-xl border border-black/10 p-2"/>
         </label>
-        <label className="mb-3 block text-sm">Costo medio che spendi per un pacchetto da 20
+        <label className="mb-3 block text-sm">Costo medio che spendi per un pacchetto da 20 (o per fare 20 sigarette col tabacco)
           <div className="mt-1 flex items-center gap-2">
             <span className="rounded-xl bg-black/5 px-2 py-2 text-sm">€</span>
             <input type="number" step="0.01" inputMode="decimal" value={pk} onChange={e=>setPk(e.target.value)} placeholder="Es. 6.50" className="w-full rounded-xl border border-black/10 p-2"/>

@@ -64,7 +64,7 @@ export default function Registro({history,historyAgg,todaySmoked,pack,baseline,o
     } else if (scope === 'month') {
         start = new Date(refDate.getFullYear(), refDate.getMonth(), 1);
         end = new Date(refDate.getFullYear(), refDate.getMonth() + 1, 0);
-        labelText = refDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+        labelText = refDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
     } else if (scope === 'year') {
         start = new Date(refDate.getFullYear(), 0, 1);
         end = new Date(refDate.getFullYear(), 11, 31);

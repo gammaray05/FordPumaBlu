@@ -29,7 +29,7 @@ export const toISO = (d) => {
 }
 
 export const addDays = (d, n) => { const x = new Date(d); x.setDate(d.getDate() + n); return x }
-export const fmtDate = (d) => d.toLocaleDateString(undefined, { weekday: 'short', day: '2-digit', month: 'short' })
+export const fmtDate = (d) => d.toLocaleDateString('it-IT', { weekday: 'short', day: '2-digit', month: 'short' })
 export const label = (k) => k === 'day' ? 'Giorno' : k === 'week' ? 'Settimana' : k === 'month' ? 'Mese' : 'Anno'
 export const timeAgo = (iso) => {
   try {

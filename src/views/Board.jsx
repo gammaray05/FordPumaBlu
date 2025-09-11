@@ -24,7 +24,7 @@ export default function Board({data,levelFrom,prog,lvlStep,meName}){
       </div>
       <div className="flex items-center justify-between"><h3 className="text-lg font-bold text-gray-800">Classifica</h3><div className="rounded-full bg-white/80 p-1 text-xs shadow"><button onClick={()=>setScope('weekly')} className={`px-2 py-1 rounded-full ${scope==='weekly'?'bg-white font-semibold':''}`}>Sett.</button><button onClick={()=>setScope('total')} className={`px-2 py-1 rounded-full ${scope==='total'?'bg-white font-semibold':''}`}>Totale</button></div></div>
       <div className="space-y-2">{rows.map((u,i)=>(
-        <LeaderboardRow key={u.name} rank={i+1} user={u} scope={scope} topScore={topScore} />
+        <LeaderboardRow key={u.name} rank={i+1} user={u} scope={scope} topScore={topScore} prog={prog} />
       ))}</div>
     </div>
   )

@@ -42,6 +42,21 @@ export default function FordPumaBlu(){
   const [timeTick,setTimeTick]=useState(0);
   const [todayTracked,setTodayTracked]=useState(false);
   const [zeroLocked,setZeroLocked]=useState(false);
+  const [dayOffset, setDayOffset] = useState(0);
+  const [isDebug, setIsDebug] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('debug') === 'true') {
+      setIsDebug(true);
+    }
+  }, []);
+
+  const handleOffsetChange = (newOffset) => {
+    setDayOffset(newOffset);
+    setDebugEpoch(x => x + 1);
+  };
+
   // re-render every 45s so timeAgo() updates naturally, and on debug changes
   useEffect(()=>{{
     const id=setInterval(()=>setTimeTick(t=>t+1), 45000);
@@ -255,7 +270,7 @@ export default function FordPumaBlu(){
   const avoidedToday=useMemo(()=>{const b=baseline ?? 20; const s=Math.max(0,smokedToday); return Math.max(0, Math.round(b - s));},[baseline,smokedToday]);
   const savingToday=useMemo(()=>{const b=baseline ?? 20; const p=pack ?? 0; const s=Math.max(0,smokedToday); return dailySaving(s,p,b);},[baseline,smokedToday,pack]);
   const historyWithToday=useMemo(()=>{const t=todayStr(); return history.some(h=>h.date===t)?history:[{date:t,smoked:smokedToday}, ...history]},[history,smokedToday]);
-  const totalsTracked=useMemo(()=>{const b=baseline ?? 20; const p=pack ?? 0; let saving=0, avoided=0; for(const x of historyWithToday){ const s=Math.max(0,x.smoked||0); const av=Math.max(0,b-s); avoided+=av; saving+= (av*p)/20; } return { saving: round2(saving), avoided };},[historyWithToday,baseline,pack]);
+  const totalsTracked=useMemo(()=>{const b=baseline ?? 20; const p=pack ?? 0; let saving=0, avoided=0; const today = todayStr(); const pastHistory = history.filter(x => x.date !== today); for(const x of pastHistory){ const s=Math.max(0,x.smoked||0); const av=Math.max(0,b-s); avoided+=av; saving+= (av*p)/20; } return { saving: round2(saving), avoided };},[history,baseline,pack]);
   const savingTotal=totalsTracked.saving;
   const avoidedTotal=totalsTracked.avoided;
   const showConfetti=smokedToday<=targetToday;
@@ -453,11 +468,12 @@ export default function FordPumaBlu(){
     }catch{}
   },[activeId]);
 const shareWA = () => {
+  const savings = savingToday;
+  const emoji = savings > 0 ? '🤑' : '🤡';
   // una 🚬 per ogni sigaretta fumata; se 0, mostra 🚭
   const cigStr = smokedToday > 0 ? '🚬'.repeat(smokedToday) : '🚭';
 
-  // testo: niente target/evitate, aggiungi risparmio con emoji soldi negli occhi
-  const t = `Oggi ${cigStr}. Risparmio: 🤑 €${savingTotal.toFixed(2)}`;
+  const t = `Oggi ${cigStr}. Risparmio: ${emoji} €${savings.toFixed(2)}`;
 
   const u = `https://wa.me/?text=${encodeURIComponent(t)}`;
   if (navigator.share) {
@@ -573,12 +589,13 @@ const shareSmokedCount = () => {
 
     <div className="mx-auto max-w-md px-4 pt-6 pb-28">
       <Header name={name} />
-      {tab==='home' && (<Home target={targetToday} smoked={smokedToday} points={pointsToday} log={logRemote} undo={undoRemote} certifyZero={certifyZeroToday} unlockZero={unlockZeroToday} zeroLocked={zeroLocked} showUndo={showUndo} undoCount={undoCount} ch={computeChallengeState(challenge, { baseline: baseline??20, getSmoked:(k)=> (k===todayStr()?smokedToday: (history.find(h=>h.date===k)?.smoked||0)), getTarget:(k)=> (k===todayStr()?targetToday: (dailyTargets[k]??(baseline??20))) })} shareWA={shareWA} shareSmokedCount={shareSmokedCount} lb={leaderboard} acts={acts} avoidedToday={avoidedToday} avoidedTotal={avoidedTotal} savingTotal={savingTotal} onChangeCh={()=>setShowCh(true)} streakDays={streakDays} streakBonusToday={(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0} levelFromXp={(p)=>levelFrom(p)} levelProg={(p)=>levelInfo(p)} goBoard={()=>setTab('classifica')} tick={timeTick} myPoints={myPoints} />)}
+      {tab==='home' && (<Home target={targetToday} smoked={smokedToday} points={pointsToday} log={logRemote} undo={undoRemote} certifyZero={certifyZeroToday} unlockZero={unlockZeroToday} zeroLocked={zeroLocked} showUndo={showUndo} undoCount={undoCount} ch={computeChallengeState(challenge, { baseline: baseline??20, getSmoked:(k)=> (k===todayStr()?smokedToday: (history.find(h=>h.date===k)?.smoked||0)), getTarget:(k)=> (k===todayStr()?targetToday: (dailyTargets[k]??(baseline??20))) })} shareWA={shareWA} shareSmokedCount={shareSmokedCount} lb={leaderboard} acts={acts} avoidedToday={avoidedToday} avoidedTotal={avoidedTotal} savingTotal={savingTotal} savingToday={savingToday} onChangeCh={()=>setShowCh(true)} streakDays={streakDays} streakBonusToday={(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0} levelFromXp={(p)=>levelFrom(p)} levelProg={(p)=>levelInfo(p)} goBoard={()=>setTab('classifica')} tick={timeTick} myPoints={myPoints} />)}
       {tab==='registro' && (<Registro history={history} historyAgg={historyWithToday} todaySmoked={smokedToday} pack={pack??0} baseline={baseline??20} onboardDate={onboardDate}/>) }
       {tab==='classifica' && (<Board data={leaderboard} levelFrom={levelFrom} prog={prog} lvlStep={lvlStep} meName={name||'Tu'} />) }
       {tab==='salute' && (<Health daysSF={streakDays}/>)}
       {tab==='profilo' && (<Profile name={name} baseline={baseline??0} pack={pack??0} streak={streakDays} daysSF={daysSF} mode={mode} setMode={(m)=>{setMode(m); const newT = (m==='zero')?0:(baseline??targetToday); setTargetToday(newT); setDailyTargets(t=>({ ...t, [todayStr()]: newT })); (async()=>{ try{ const sb=await getSB(); const d=todayStr(); const b=baseline??20; const base=computePoints(b,newT,smokedToday); const bonus=(rewardsByDate[d]||0); const sbn=(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0; if(sb && activeId){ await sb.from('profiles').update({ mode:m, target_today:newT }).eq('id', activeId); await sb.from('daily_stats').upsert({ profile_id: activeId, date: d, smoked: smokedToday, target: newT, points: base+bonus+sbn }); } else if(activeId){ upsertDailyStatLocal(activeId, { date:d, smoked: smokedToday, target: newT, points: base+sbn }); } }catch{} })(); }} target={targetToday} setTarget={(n)=>{const v=Math.max(0,n); const m2 = (v===0)?'zero':'reduction'; setTargetToday(v); setMode(m2); setDailyTargets(t=>({ ...t, [todayStr()]: v })); (async()=>{ try{ const sb=await getSB(); const d=todayStr(); const b=baseline??20; const base=computePoints(b,v,smokedToday); const bonus=(rewardsByDate[d]||0); const sbn=(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0; if(sb && activeId){ await sb.from('profiles').update({ target_today:v, mode:m2 }).eq('id', activeId); await sb.from('daily_stats').upsert({ profile_id: activeId, date: d, smoked: smokedToday, target: v, points: base+bonus+sbn }); } else if(activeId){ upsertDailyStatLocal(activeId, { date:d, smoked: smokedToday, target: v, points: base+sbn }); } }catch{} })(); }} setDaysSF={setDaysSF} onEdit={()=>setShowEdit(true)} badges={badges} earnedBadgeIds={earnedBadges} />)}
     </div>
+    {isDebug && <Debug onOffsetChange={handleOffsetChange} />}
     {authStage !== 'onboard' && <Tabs tab={tab} setTab={setTab}/>}
   </div></AppProvider>);
 }
@@ -603,6 +620,7 @@ import Login from './components/modals/Login.jsx';
 import ChallengePicker from './components/modals/ChallengePicker.jsx';
 import { CHALLENGES, computeChallengeState, dayKeyAdd } from './lib/challenges.js';
 import { AppProvider } from './state/AppContext.jsx';
+import Debug from './components/Debug.jsx';
 
 const _ConfettiOld=()=>{const n=18;const arr=[...Array(n).keys()];return(<>
   <div className="confetti">{arr.map(i=>{const left=Math.random()*100,delay=Math.random()*2,size=6+Math.random()*8;const colors=['#00B7FF','#FF2EA6','#00E3B5','#FF7A00','#7B42FF'];const st={position:'absolute',left:left+'%',top:'-10px',width:size,height:size,background:colors[i%colors.length],borderRadius:9999,opacity:.95,animation:`fall 1.8s ${delay}s ease-in forwards`,boxShadow:'0 2px 6px rgba(0,0,0,.12)'};return <span key={i} style={st}/>})}</div>

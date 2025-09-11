@@ -101,6 +101,7 @@ export default function Registro({history,historyAgg,todaySmoked,pack,baseline,o
   }, [scope, page, today, lowerBound]);
 
   const agg = useMemo(() => {
+    const today = todayStr();
     if (scope === 'day') {
         const k=saneKey(dayKey);
         const isToday=(k===today);
@@ -113,7 +114,8 @@ export default function Registro({history,historyAgg,todaySmoked,pack,baseline,o
 
     if (!range.start) return { smoked: 0, avoided: 0, saving: 0 };
 
-    const filteredHistory = historyPlusToday.filter(h => {
+    const pastHistory = historyPlusToday.filter(h => h.date !== today);
+    const filteredHistory = pastHistory.filter(h => {
         const d = fromDayKey(h.date);
         return d >= range.start && d <= range.end;
     });

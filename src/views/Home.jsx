@@ -5,7 +5,7 @@ import { useApp } from '../state/AppContext.jsx'
 import LevelProgress from '../components/ui/LevelProgress.jsx';
 import LeaderboardRow from '../components/ui/LeaderboardRow.jsx';
 
-export default function Home({target,smoked,points,log,undo,certifyZero,unlockZero,zeroLocked,showUndo,undoCount,ch,shareWA,shareSmokedCount,lb,acts,avoidedToday,avoidedTotal,savingTotal,onChangeCh,streakDays,streakBonusToday,levelFromXp,levelProg,goBoard,tick,myPoints}){
+export default function Home({target,smoked,points,log,undo,certifyZero,unlockZero,zeroLocked,showUndo,undoCount,ch,shareWA,shareSmokedCount,lb,acts,avoidedToday,avoidedTotal,savingTotal,savingToday = 0,onChangeCh,streakDays,streakBonusToday,levelFromXp,levelProg,goBoard,tick,myPoints}){
   const app = useApp?.()
   const sDays = app?.streakDays ?? streakDays
   const under=smoked<=target
@@ -62,11 +62,9 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
       <div className="card p-4">
         <div className="grid grid-cols-2 gap-3">
           <Metric title="Evitate oggi" icon="🛡️" val={avoidedToday} color="var(--g1)"/>
+          <Metric title="Risparmio oggi" icon="💰" val={`€${savingToday.toFixed(2)}`} color="var(--g2)"/>
           <Metric title="Evitate totali" icon="🚭" val={avoidedTotal} color="var(--t)"/>
-          
-          <div className="col-span-2">
-            <Metric title="Risparmio totale" icon="💰" val={`€${savingTotal.toFixed(2)}`} color="var(--g2)"/>
-          </div>
+          <Metric title="Risparmio totale" icon="💰" val={`€${savingTotal.toFixed(2)}`} color="var(--g2)"/>
 
           <div className="col-span-2 rounded-xl bg-white/95 p-4 shadow">
             <div className="flex items-center justify-between"><div className="text-sm text-[#111]/90">Condividi i tuoi progressi giornalieri</div><span className="text-lg">📣</span></div>

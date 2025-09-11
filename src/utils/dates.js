@@ -3,11 +3,22 @@
 const DAY_START_HOUR = 5
 const SHIFT_MS = DAY_START_HOUR * 60 * 60 * 1000
 
+let dateOffset = 0;
+
+export const setDateOffset = (offset) => {
+  dateOffset = offset;
+};
+
+export const getDateOffset = () => {
+  return dateOffset;
+};
+
 const pad = (n) => String(n).padStart(2, '0')
 const ymdLocal = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export const nowWithOffset = () => {
   const n = new Date()
+  n.setDate(n.getDate() + dateOffset);
   return n
 }
 

@@ -361,8 +361,8 @@ export default function FordPumaBlu(){
     })();
   };
   const certifyZeroToday = () => {
-    if ((smokedRef.current||0) > 0) { alert('Non puoi certificare 0: oggi hai già registrato sigarette.'); return; }
-    const ok = window.confirm('Confermi che oggi NON hai fumato? Salveremo il giorno come 0 e verrà conteggiato nella streak.');
+    if ((smokedRef.current||0) > 0) { alert('Non puoi certificare 0 sigarette: oggi hai già fumato.'); return; }
+    const ok = window.confirm('Confermi che oggi NON hai fumato? Salveremo il giorno come smoke-free e verrà conteggiato nella streak.');
     if (!ok) return;
     const d = todayStr();
     const newCount = 0;
@@ -396,7 +396,7 @@ export default function FordPumaBlu(){
     setSmokedToday(newCount);
     setHistory(h=>upsert(h,d,newCount));
     (async ()=>{ try{ const sb=await getSB(); if(sb && name && activeId){
-      const { data:act } = await sb.from('activities').insert({ icon:'🚬', text:`${name} ha registrato una sigaretta`, profile_id: activeId, created_at: new Date(nowWithOffset().getTime()).toISOString() }).select('id').single();
+      const { data:act } = await sb.from('activities').insert({ icon:'🚬', text:`${name} ha fumato`, profile_id: activeId, created_at: new Date(nowWithOffset().getTime()).toISOString() }).select('id').single();
       const actId=act?.id; if(actId){ lastActIdRef.current = actId; setRecentActIds(st=>[...st,actId]); }
       // no smoke_logs insert here to avoid duplicate feed entries
       const base=computePoints(baseline ?? 20,targetToday,newCount);

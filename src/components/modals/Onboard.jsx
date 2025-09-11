@@ -8,8 +8,8 @@ export default function Onboard({ onDone }){
   const [ti,setTi]=useState('')
   const ok=n.trim()&&Number(c)>0&&Number(pk)>0&&(m==='zero'||Number(ti)>=0)
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/30 p-4 flex flex-col">
-      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl m-auto">
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/30 p-4 pb-20">
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
         <h2 className="mb-1 text-lg font-bold text-[#111]">Crea un nuovo profilo</h2>
         <p className="mb-4 text-sm text-[#111]/85">Stai creando un <b>nuovo utente Ford Puma Blu</b>. Questi dati servono per calcolare risparmi e progressi.</p>
         <label className="mb-3 block text-sm">Nome

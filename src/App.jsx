@@ -43,10 +43,21 @@ export default function FordPumaBlu(){
   const [todayTracked,setTodayTracked]=useState(false);
   const [zeroLocked,setZeroLocked]=useState(false);
   // re-render every 45s so timeAgo() updates naturally, and on debug changes
-  useEffect(()=>{
+  useEffect(()=>{{
     const id=setInterval(()=>setTimeTick(t=>t+1), 45000);
     return ()=>clearInterval(id);
-  },[]);
+  }},[]);
+
+  useEffect(() => {{
+    if (authStage === 'onboard') {{
+      document.body.style.overflow = 'hidden';
+    }} else {{
+      document.body.style.overflow = 'auto';
+    }}
+    return () => {{
+      document.body.style.overflow = 'auto';
+    }};
+  }}, [authStage]);
   
   // ---- Supabase helper (centralized via lib/supabase.js) ----
   const getSB = async () => {

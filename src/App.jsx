@@ -473,18 +473,6 @@ const shareSmokedCount = () => {
   window.open(u, '_blank');
 };
 
-  // Debug day offset helpers (stored in localStorage so date helpers pick it up)
-  const getDbg = () => { try { return parseInt(localStorage.getItem('fbl_debug_offset')||'0',10)||0 } catch { return 0 } }
-  const setDbg = (n) => { try { localStorage.setItem('fbl_debug_offset', String(n)); } catch {} }
-  const debugShiftDay = (delta) => {
-    const cur = getDbg(); const nx = cur + delta; setDbg(nx);
-    // Trigger refresh of today stats by re-running the load effect
-    setSmokedToday(0);
-    setDebugEpoch((x)=>x+1);
-    setActs(a=>a.slice());
-  }
-  const debugResetDay = () => { setDbg(0); setSmokedToday(0); setDebugEpoch((x)=>x+1); setActs(a=>a.slice()); }
-
   // Challenge awarding: when a challenge is won, award bonus once on endKey
   useEffect(()=>{
     (async ()=>{
@@ -585,7 +573,7 @@ const shareSmokedCount = () => {
 
     <div className="mx-auto max-w-md px-4 pt-6 pb-28">
       <Header name={name} />
-      {tab==='home' && (<Home target={targetToday} smoked={smokedToday} points={pointsToday} log={logRemote} undo={undoRemote} certifyZero={certifyZeroToday} unlockZero={unlockZeroToday} zeroLocked={zeroLocked} showUndo={showUndo} undoCount={undoCount} ch={computeChallengeState(challenge, { baseline: baseline??20, getSmoked:(k)=> (k===todayStr()?smokedToday: (history.find(h=>h.date===k)?.smoked||0)), getTarget:(k)=> (k===todayStr()?targetToday: (dailyTargets[k]??(baseline??20))) })} shareWA={shareWA} shareSmokedCount={shareSmokedCount} lb={leaderboard} acts={acts} avoidedToday={avoidedToday} avoidedTotal={avoidedTotal} savingTotal={savingTotal} onChangeCh={()=>setShowCh(true)} streakDays={streakDays} streakBonusToday={(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0} levelFromXp={(p)=>levelFrom(p)} levelProg={(p)=>levelInfo(p)} goBoard={()=>setTab('classifica')} debugShiftDay={debugShiftDay} debugResetDay={debugResetDay} simDate={todayStr()} tick={timeTick} myPoints={myPoints} />)}
+      {tab==='home' && (<Home target={targetToday} smoked={smokedToday} points={pointsToday} log={logRemote} undo={undoRemote} certifyZero={certifyZeroToday} unlockZero={unlockZeroToday} zeroLocked={zeroLocked} showUndo={showUndo} undoCount={undoCount} ch={computeChallengeState(challenge, { baseline: baseline??20, getSmoked:(k)=> (k===todayStr()?smokedToday: (history.find(h=>h.date===k)?.smoked||0)), getTarget:(k)=> (k===todayStr()?targetToday: (dailyTargets[k]??(baseline??20))) })} shareWA={shareWA} shareSmokedCount={shareSmokedCount} lb={leaderboard} acts={acts} avoidedToday={avoidedToday} avoidedTotal={avoidedTotal} savingTotal={savingTotal} onChangeCh={()=>setShowCh(true)} streakDays={streakDays} streakBonusToday={(todayTracked && smokedToday===0)?(5 + Math.max(0,streakDays-1)*2):0} levelFromXp={(p)=>levelFrom(p)} levelProg={(p)=>levelInfo(p)} goBoard={()=>setTab('classifica')} tick={timeTick} myPoints={myPoints} />)}
       {tab==='registro' && (<Registro history={history} historyAgg={historyWithToday} todaySmoked={smokedToday} pack={pack??0} baseline={baseline??20} onboardDate={onboardDate}/>) }
       {tab==='classifica' && (<Board data={leaderboard} levelFrom={levelFrom} prog={prog} lvlStep={lvlStep} meName={name||'Tu'} />) }
       {tab==='salute' && (<Health daysSF={streakDays}/>)}

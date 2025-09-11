@@ -6,14 +6,8 @@ const SHIFT_MS = DAY_START_HOUR * 60 * 60 * 1000
 const pad = (n) => String(n).padStart(2, '0')
 const ymdLocal = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
-export const getDebugOffsetDays = () => {
-  try { return parseInt(localStorage.getItem('fbl_debug_offset') || '0', 10) || 0 } catch { return 0 }
-}
-
 export const nowWithOffset = () => {
   const n = new Date()
-  const off = getDebugOffsetDays()
-  if (off) { n.setDate(n.getDate() + off) }
   return n
 }
 

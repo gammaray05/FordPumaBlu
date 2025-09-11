@@ -5,7 +5,7 @@ import { useApp } from '../state/AppContext.jsx'
 import LevelProgress from '../components/ui/LevelProgress.jsx';
 import LeaderboardRow from '../components/ui/LeaderboardRow.jsx';
 
-export default function Home({target,smoked,points,log,undo,certifyZero,unlockZero,zeroLocked,showUndo,undoCount,ch,shareWA,shareSmokedCount,lb,acts,avoidedToday,avoidedTotal,savingTotal,onChangeCh,streakDays,streakBonusToday,levelFromXp,levelProg,goBoard,debugShiftDay,debugResetDay,simDate,tick,myPoints}){
+export default function Home({target,smoked,points,log,undo,certifyZero,unlockZero,zeroLocked,showUndo,undoCount,ch,shareWA,shareSmokedCount,lb,acts,avoidedToday,avoidedTotal,savingTotal,onChangeCh,streakDays,streakBonusToday,levelFromXp,levelProg,goBoard,tick,myPoints}){
   const app = useApp?.()
   const sDays = app?.streakDays ?? streakDays
   const under=smoked<=target
@@ -75,16 +75,6 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
         </div>
       </div>
       
-      <div className="card p-3">
-        <div className="flex items-center justify-between text-xs">
-          <div className="text-[#111]/85">Debug giorno • Oggi simulato: <span className="font-semibold">{simDate}</span></div>
-          <div className="flex items-center gap-2">
-            <button onClick={()=>debugShiftDay(-1)} className="btn px-3 py-1 text-white" style={{background:'var(--g1)'}}>-1</button>
-            <button onClick={()=>debugShiftDay(+1)} className="btn px-3 py-1 text-white" style={{background:'var(--g2)'}}>+1</button>
-            <button onClick={debugResetDay} className="btn px-3 py-1 text-white" style={{background:'#444'}}>Reset</button>
-          </div>
-        </div>
-      </div>
       <div className="card p-4">
         <div className="mb-2 flex items-center justify-between"><h3 className="text-lg font-bold text-[#111]">Classifica (top 3 settimanale)</h3><a href="#" onClick={(e)=>{e.preventDefault(); (goBoard ? goBoard() : app?.setTab?.('classifica'))}} className="text-xs font-semibold underline">Vedi tutto</a></div>
         <div className="space-y-2">{(() => {

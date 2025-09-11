@@ -43,9 +43,8 @@ export default function LevelProgress({ level, xp, progress, needed, have, start
           style={{ width: `${pct}%` }}
         />
       </div>
-      <div className="flex justify-between text-xs text-gray-500 mt-1">
-        <span>{have} pt</span>
-        <span>{levelPoints} pt</span>
+      <div className="flex justify-end text-xs text-gray-500 mt-1">
+        <span>{end} pt</span>
       </div>
     </div>
   );

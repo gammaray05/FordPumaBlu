@@ -550,7 +550,7 @@ const shareSmokedCount = () => {
   return (<AppProvider value={appValue}><div className={"min-h-screen w-full"} style={{background:'var(--bg)'}}>
     {showConfetti && (<><Confetti/></>)}
     {authStage==='login' && (<Login profiles={profiles} lastActive={lastActive} onPick={loginAs} onNew={()=>setAuthStage('onboard')} />)}
-    {authStage==='onboard' && (<Onboard onDone={async (n,c,cost,mm,initT)=>{
+    {authStage==='onboard' && (<Onboard onBack={()=>setAuthStage('login')} onDone={async (n,c,cost,mm,initT)=>{
       const prof={id:'p_'+Date.now(),name:n,baseline:c,pack:cost,mode:mm,targetToday:mm==='zero'?0:(Number(initT||c))};
       try{
         const sb = await getSB();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-export default function Onboard({ onDone }){
+export default function Onboard({ onDone, onBack }){
   const [n,setN]=useState('')
   const [c,setC]=useState('')
   const [pk,setPk]=useState('')
@@ -10,6 +10,12 @@ export default function Onboard({ onDone }){
   return (
     <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/30 p-4 pb-20">
       <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
+        {onBack && (
+          <button onClick={onBack} className="mb-2 text-sm font-semibold text-gray-600 hover:text-gray-800 flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Torna al Login
+          </button>
+        )}
         <h2 className="mb-1 text-lg font-bold text-[#111]">Crea un nuovo profilo</h2>
         <p className="mb-4 text-sm text-[#111]/85">Stai creando un <b>nuovo utente Ford Puma Blu</b>. Questi dati servono per calcolare risparmi e progressi.</p>
         <label className="mb-3 block text-sm">Nome

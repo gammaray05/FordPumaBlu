@@ -5,7 +5,7 @@ import { useApp } from '../state/AppContext.jsx'
 import LevelProgress from '../components/ui/LevelProgress.jsx';
 import LeaderboardRow from '../components/ui/LeaderboardRow.jsx';
 
-export default function Home({target,smoked,points,log,undo,certifyZero,unlockZero,zeroLocked,showUndo,undoCount,ch,shareWA,lb,acts,avoidedToday,avoidedTotal,savingTotal,onChangeCh,streakDays,streakBonusToday,levelFromXp,levelProg,goBoard,debugShiftDay,debugResetDay,simDate,tick,myPoints}){
+export default function Home({target,smoked,points,log,undo,certifyZero,unlockZero,zeroLocked,showUndo,undoCount,ch,shareWA,shareSmokedCount,lb,acts,avoidedToday,avoidedTotal,savingTotal,onChangeCh,streakDays,streakBonusToday,levelFromXp,levelProg,goBoard,debugShiftDay,debugResetDay,simDate,tick,myPoints}){
   const app = useApp?.()
   const sDays = app?.streakDays ?? streakDays
   const under=smoked<=target
@@ -32,10 +32,13 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
         </div>
       )}
       {showUndo&&(
-        <div className="card p-3 text-sm">
-          Registrata ☹️.{'  '}
-          <button onClick={(e)=>{e.preventDefault(); e.stopPropagation(); undo();}} className="font-semibold underline">Annulla x{undoCount}</button>
-          {' '}(hai 30s)
+        <div className="card p-3 text-sm flex items-center justify-between">
+          <div>
+            Registrata ☹️.
+            <button onClick={(e)=>{e.preventDefault(); e.stopPropagation(); undo();}} className="font-semibold underline ml-2">Annulla x{undoCount}</button>
+            <span className="ml-2 text-gray-500">(hai 30s)</span>
+          </div>
+          <button onClick={(e)=>{e.preventDefault(); e.stopPropagation(); shareSmokedCount();}} className="btn text-white px-3 py-2 text-xs font-bold" style={{background: 'var(--wa)'}}>Condividi</button>
         </div>
       )}
       <div className="card p-4">
@@ -58,12 +61,16 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
       <div className="mt-2 text-xs text-[#111]/90">🔥 Streak di giorni a 0 sigarette: <span className="font-semibold">{sDays}</span> giorni {streakBonusToday? (<span className="ml-2 chip rounded-md px-2 py-0.5" style={{background:'#fff'}}>+{streakBonusToday} pt</span>) : null}</div>
       <div className="card p-4">
         <div className="grid grid-cols-2 gap-3">
-          <Metric title="Evitate oggi" icon="✅" val={avoidedToday}/>
-          <Metric title="Risparmio totale" icon="💰" val={`€${savingTotal.toFixed(2)}`}/>
-          <Metric title="Evitate totali" icon="📉" val={avoidedTotal}/>
-          <div className="rounded-xl bg-white/95 p-3 shadow">
-            <div className="flex items-center justify-between"><div className="text-xs text-[#111]/90">Condividi</div><span className="text-lg">📣</span></div>
-            <button onClick={shareWA} className="btn mt-2 w-full px-3 py-2 text-sm font-bold text-white" style={{background:"var(--wa)"}}>WhatsApp</button>
+          <Metric title="Evitate oggi" icon="🛡️" val={avoidedToday} color="var(--g1)"/>
+          <Metric title="Evitate totali" icon="🚭" val={avoidedTotal} color="var(--t)"/>
+          
+          <div className="col-span-2">
+            <Metric title="Risparmio totale" icon="💰" val={`€${savingTotal.toFixed(2)}`} color="var(--g2)"/>
+          </div>
+
+          <div className="col-span-2 rounded-xl bg-white/95 p-4 shadow">
+            <div className="flex items-center justify-between"><div className="text-sm text-[#111]/90">Condividi i tuoi progressi giornalieri</div><span className="text-lg">📣</span></div>
+            <button onClick={shareWA} className="btn mt-2 w-full px-3 py-2 text-sm font-bold text-white" style={{background:"var(--wa)"}}>Condividi su WhatsApp</button>
           </div>
         </div>
       </div>

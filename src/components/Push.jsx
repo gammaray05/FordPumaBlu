@@ -94,7 +94,7 @@ function Push() {
   return (
     <button 
         onClick={isSubscribed ? unsubscribeUser : subscribeUser}
-        className="btn bg-white/80 shadow text-gray-800 text-xs font-bold px-4 py-2 rounded-lg mt-4"
+        className="invisible btn bg-white/80 shadow text-gray-800 text-xs font-bold px-4 py-2 rounded-lg mt-4"
     >
       {isSubscribed ? 'Disattiva Notifiche Push' : 'Attiva Notifiche Push'}
     </button>

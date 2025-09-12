@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { badges } from './lib/badges.js';
+import { setSupabaseClient } from './lib/supabase.js';
 
 // Ford Puma Blu • Compact Mock UI (skeuo + bright palette)
 export default function FordPumaBlu(){
@@ -49,6 +50,8 @@ export default function FordPumaBlu(){
     const params = new URLSearchParams(window.location.search);
     if (params.get('debug') === 'true') {
       setIsDebug(true);
+      setSupabaseClient(null);
+      console.log('--- DEBUG MODE ON: Supabase is disabled ---');
     }
   }, []);
 
@@ -161,6 +164,7 @@ export default function FordPumaBlu(){
         }
         const arr=(data||[]).map(r=>({date:r.date,smoked:r.smoked}));
         setHistory(arr);
+        setDaysSF((data || []).filter(d => (d.smoked || 0) === 0).length);
         try{ setMyPoints((data||[]).reduce((a,r)=> a + (r.points||0), 0)); }catch{ setMyPoints(0); }
         const tg={}; (data||[]).forEach(r=>{ if(typeof r.target==='number') tg[r.date]=r.target; });
         setDailyTargets(tg);

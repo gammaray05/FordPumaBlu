@@ -4,6 +4,7 @@ import { timeAgo } from '../utils/dates.js'
 import { useApp } from '../state/AppContext.jsx'
 import LevelProgress from '../components/ui/LevelProgress.jsx';
 import LeaderboardRow from '../components/ui/LeaderboardRow.jsx';
+import Push from '../components/Push.jsx';
 
 export default function Home({target,smoked,points,log,undo,certifyZero,unlockZero,zeroLocked,showUndo,undoCount,ch,shareWA,shareSmokedCount,lb,acts,avoidedToday,avoidedTotal,savingTotal,savingToday = 0,onChangeCh,streakDays,streakBonusToday,levelFromXp,levelProg,goBoard,tick,myPoints}){
   const app = useApp?.()
@@ -121,6 +122,7 @@ export default function Home({target,smoked,points,log,undo,certifyZero,unlockZe
       )}
       <div className="text-center text-xs text-gray-500 mt-4">
         <p>Nota: la giornata termina e inizia alle 5:00 del mattino.</p>
+        <Push />
       </div>
     </div>
   )

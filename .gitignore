@@ -19,3 +19,4 @@ pnpm-debug.log*
 .env
 .env.local
 .env.*.local
+vapid_keys.json

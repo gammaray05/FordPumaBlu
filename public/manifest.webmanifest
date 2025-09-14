@@ -5,7 +5,14 @@
     {
       "src": "/img/icon.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/img/notifications.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "monochrome"
     }
   ],
   "start_url": "/",

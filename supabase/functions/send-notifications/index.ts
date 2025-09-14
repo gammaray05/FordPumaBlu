@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const payload = JSON.stringify({
       title: '🚬 Ford Puma Blu',
       body: 'Non fumare, ma se fumi almeno ricordati di tracciarle!',
-      icon: 'https://fordpumablu.pages.dev/img/notification.png', // <-- Aggiungi questa linea
+      badge: 'https://fordpumablu.pages.dev/img/notification.png', // <-- Icona per la barra di stato
     })
 
     for (const { subscription } of rows ?? []) {

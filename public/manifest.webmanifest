@@ -9,7 +9,7 @@
       "purpose": "any"
     },
     {
-      "src": "/img/notifications.png",
+      "src": "/img/notification.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "monochrome"

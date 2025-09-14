@@ -88,7 +88,7 @@ function Push() {
   };
 
   if (isLoading || !('PushManager' in window)) {
-    return null; // Don't render button if loading or push not supported
+    return null; // Don't render button if loading or push not supported.
   }
 
   return (

@@ -6,8 +6,8 @@ self.addEventListener('push', function(event) {
   const title = data.title || 'Ford Puma Blu';
   const options = {
     body: data.body || 'Hai un nuovo messaggio.',
-    icon: '/img/icon.png',
-    badge: '/img/icon.png'
+    icon: data.icon,  // Usa l'icona dal payload
+    badge: data.badge // Usa il badge dal payload
   };
 
   event.waitUntil(self.registration.showNotification(title, options));

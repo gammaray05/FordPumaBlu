@@ -326,7 +326,7 @@ export default function FordPumaBlu(){
       try{
         const sb = await getSB();
         if(!sb || !profiles.length){ setLeaderboard([]); return; }
-        const today = nowWithOffset();
+        const today = new Date(nowWithOffset().getTime() - (5 * 60 * 60 * 1000));
         const dayOfWeek = today.getDay();
         const daysToSubtract = (dayOfWeek === 0) ? 6 : (dayOfWeek - 1);
         const lastMondayDate = new Date(today);

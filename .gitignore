@@ -21,3 +21,4 @@ pnpm-debug.log*
 .env.*.local
 vapid_keys.json
 test-notifications.bat
+slow_queries.json

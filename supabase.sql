@@ -76,3 +76,7 @@ create table if not exists public.challenge_rewards (
 alter table public.challenge_rewards enable row level security;
 create policy "challenge_rewards read" on public.challenge_rewards for select using (true);
 create policy "challenge_rewards insert" on public.challenge_rewards for insert with check (true);
+
+-- Indexes for performance
+create index if not exists idx_activities_profile_id on public.activities(profile_id);
+create index if not exists idx_smoke_logs_profile_id on public.smoke_logs(profile_id);

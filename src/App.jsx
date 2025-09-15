@@ -216,6 +216,7 @@ export default function FordPumaBlu(){
             if(!dup) deduped.push(n);
           }
           setActs(deduped);
+          /*
           const ch = sb
             .channel('realtime:activities')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activities' }, (payload)=>{
@@ -231,6 +232,7 @@ export default function FordPumaBlu(){
             })
             .subscribe();
           unsub=()=>{ try{sb.removeChannel(ch)}catch{} };
+          */
         } else {
           setActs([]);
         }

@@ -94,7 +94,7 @@ Per inviare una notifica ogni giorno a un orario prestabilito, usiamo `pg_cron` 
       '0 19 * * *', -- Ogni giorno alle 19:00 UTC
       $$
       SELECT net.http_post(
-        url:='https://kgllzazurmraxypklvbc.supabase.co/functions/v1/send-notifications',
+        url:='https://APP.supabase.co/functions/v1/send-notifications',
         headers:='{"Content-Type": "application/json", "X-Cron-Secret": "IL_TUO_CRON_SECRET"}',
         body:='{}'::jsonb
       )

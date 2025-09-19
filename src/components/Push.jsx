@@ -105,7 +105,7 @@ function Push() {
   if (isIos && !isStandalone) {
     return (
       <div className="text-center text-xs text-gray-600 mt-4 p-3 rounded-lg bg-gray-100">
-        Per abilitare le notifiche, aggiungi l'app alla schermata Home: tocca l'icona di condivisione <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg> e seleziona "Aggiungi a Home".
+        Per abilitare le notifiche, aggiungi l'app alla Home: tocca l'icona di condivisione <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor"><path d="M13 4.5a.5.5 0 00-1 0V12a.5.5 0 001 0V4.5z"/><path d="M10.5 2.5a.5.5 0 00-.5-.5h-3a.5.5 0 000 1H10a.5.5 0 00.5-.5z"/><path fill-rule="evenodd" d="M6.5 2a1.5 1.5 0 00-1.5 1.5v10A1.5 1.5 0 006.5 15h7a1.5 1.5 0 001.5-1.5v-10A1.5 1.5 0 0013.5 2h-7zm-1 1.5a.5.5 0 01.5-.5h7a.5.5 0 01.5.5v10a.5.5 0 01-.5.5h-7a.5.5 0 01-.5-.5v-10z" clip-rule="evenodd"/></svg> e seleziona "Aggiungi alla schermata Home".
       </div>
     );
   }

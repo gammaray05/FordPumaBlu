@@ -22,10 +22,23 @@ function urlBase64ToUint8Array(base64String) {
 function Push() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isIos, setIsIos] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    setIsIos(isIosDevice);
+    setIsStandalone(isInStandaloneMode);
+
+    if (isIosDevice && !isInStandaloneMode) {
+      setIsLoading(false);
+      return;
+    }
+
     async function checkSubscription() {
-      if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
         try {
           const reg = await navigator.serviceWorker.ready;
           const sub = await reg.pushManager.getSubscription();
@@ -34,13 +47,11 @@ function Push() {
           }
         } catch (error) {
           console.error("Error checking subscription:", error);
-        } finally {
-          setIsLoading(false);
         }
-      } else {
-        setIsLoading(false);
       }
+      setIsLoading(false);
     }
+
     checkSubscription();
   }, []);
 
@@ -58,7 +69,6 @@ function Push() {
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
       });
 
-      // This is the function we will create in Supabase
       const { error } = await supabase.functions.invoke('save-subscription', {
         body: sub,
       });
@@ -87,8 +97,22 @@ function Push() {
     }
   };
 
-  if (isLoading || !('PushManager' in window)) {
-    return null; // Don't render button if loading or push not supported.
+  if (isLoading) {
+    return null; // Don't render anything while loading
+  }
+
+  // If on iOS and not in standalone mode, show a message
+  if (isIos && !isStandalone) {
+    return (
+      <div className="text-center text-xs text-gray-600 mt-4 p-3 rounded-lg bg-gray-100">
+        Per abilitare le notifiche, aggiungi l'app alla schermata Home: tocca l'icona di condivisione <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 inline-block" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg> e seleziona "Aggiungi a Home".
+      </div>
+    );
+  }
+
+  // If push notifications are not supported at all (and not the iOS case above)
+  if (!('PushManager' in window)) {
+    return null;
   }
 
   return (
